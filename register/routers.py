@@ -9,6 +9,7 @@ class OptionalSlashRouter(DefaultRouter):
     """
     optional slash router class
     """
+
     def __init__(self):
         """
             explicitly appending '/' in urls if '/' doesn't exists for making common url patterns .
@@ -16,3 +17,14 @@ class OptionalSlashRouter(DefaultRouter):
         super(OptionalSlashRouter, self).__init__()
         self.trailing_slash = '/?'
 
+class JobSourcingRouter(OptionalSlashRouter):
+    """
+    job sourcing router class
+    """
+
+    def __init__(self):
+        """
+            explicitly appending '/' in urls if '/' doesn't exists for making common url patterns .
+        """
+        super(JobSourcingRouter, self).__init__()
+        self.trailing_slash = '/?'
