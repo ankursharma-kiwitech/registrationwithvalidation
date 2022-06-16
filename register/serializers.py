@@ -1,8 +1,9 @@
+import username as username
 from rest_framework import serializers, generics, permissions
 from rest_framework.response import Response
 
 import validation_message
-from register.models import UserDetails, UserAddresses, UserCorrespondanceAddress
+from register.models import UserDetails, UserAddresses
 
 '''  authentication serializer  '''
 
@@ -75,18 +76,17 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserDetails
-        fields = ('id', 'first_name', 'last_name', 'email', 'username', 'password', 'password2', 'is_active')
+        fields = ( 'first_name', 'last_name', 'email', 'username', 'password', 'password2', 'is_active')
+        depth = 1
         extra_kwargs = {
             'password': {'write_only': True}
         }
 
 
 class UserAddressesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserAddresses
-        fields = ('id', 'user', 'address', 'city', 'state', 'country', 'pincode')
 
-    user = serializers.PrimaryKeyRelatedField(queryset=UserDetails.objects.all())
+    userdet=RegistrationSerializer(many=True, read_only=True)
+
     address = serializers.CharField(required=True, min_length=validation_message.CHAR_LIMIT_SIZE['address_min'],
                                     max_length=validation_message.CHAR_LIMIT_SIZE['address_max'],
                                     error_messages=validation_message.VALIDATION['address'])
@@ -105,7 +105,7 @@ class UserAddressesSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = UserAddresses.objects.create(
-            user=validated_data['user'],
+            useradd = validated_data['useradd'],
             address=validated_data['address'],
             city=validated_data['city'],
             state=validated_data['state'],
@@ -115,73 +115,11 @@ class UserAddressesSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-    def validate_UserAddress(self, user):
-        existing = UserAddresses.objects.filter(user=user).first()
+    def validate_UserAddress(self, username):
+        existing = UserAddresses.objects.filter(username=username).first()
         if existing:
             raise serializers.ValidationError("You have already added an address")
-        return user
-
-    def validate_address(self, address):
-        if not address:
-            raise serializers.ValidationError("Please enter an address")
-        return address
-
-    def validate_city(self, city):
-        if not city:
-            raise serializers.ValidationError("Please enter a city")
-        return city
-
-    def validate_state(self, state):
-        if not state:
-            raise serializers.ValidationError("Please enter a state")
-        return state
-
-    def validate_country(self, country):
-        if not country:
-            raise serializers.ValidationError("Please enter a country")
-        return country
-
-    def validate_pincode(self, pincode):
-        if not pincode:
-            raise serializers.ValidationError("Please enter a pincode")
-        return pincode
-
-
-class UserCorrespondanceAddressSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=UserDetails.objects.all())
-    address = serializers.CharField(required=True, min_length=validation_message.CHAR_LIMIT_SIZE['address_min'],
-                                    max_length=validation_message.CHAR_LIMIT_SIZE['address_max'],
-                                    error_messages=validation_message.VALIDATION['address'])
-    city = serializers.CharField(required=True, min_length=validation_message.CHAR_LIMIT_SIZE['city_min'],
-                                 max_length=validation_message.CHAR_LIMIT_SIZE['city_max'],
-                                 error_messages=validation_message.VALIDATION['city'])
-    state = serializers.CharField(required=True, min_length=validation_message.CHAR_LIMIT_SIZE['state_min'],
-                                  max_length=validation_message.CHAR_LIMIT_SIZE['state_max'],
-                                  error_messages=validation_message.VALIDATION['state'])
-    country = serializers.CharField(required=True, min_length=validation_message.CHAR_LIMIT_SIZE['country_min'],
-                                    max_length=validation_message.CHAR_LIMIT_SIZE['country_max'],
-                                    error_messages=validation_message.VALIDATION['country'])
-    pincode = serializers.CharField(required=True, min_length=validation_message.CHAR_LIMIT_SIZE['pincode_min'],
-                                    max_length=validation_message.CHAR_LIMIT_SIZE['pincode_max'],
-                                    error_messages=validation_message.VALIDATION['pincode'])
-
-    def create(self, validated_data):
-        user = UserCorrespondanceAddress.objects.create(
-            user=validated_data['user'],
-            address=validated_data['address'],
-            city=validated_data['city'],
-            state=validated_data['state'],
-            country=validated_data['country'],
-            pincode=validated_data['pincode']
-        )
-        user.save()
-        return user
-
-    def validate_UserCorrespondanceAddress(self, user):
-        existing = UserCorrespondanceAddress.objects.filter(user=user).first()
-        if existing:
-            raise serializers.ValidationError("You have already added an address")
-        return user
+        return username
 
     def validate_address(self, address):
         if not address:
@@ -209,16 +147,7 @@ class UserCorrespondanceAddressSerializer(serializers.ModelSerializer):
         return pincode
 
     class Meta:
-        model = UserCorrespondanceAddress
-        fields = ('id', 'user', 'address', 'city', 'state', 'country', 'pincode')
-
-
-
-
-
-
-
-
-
+        model = UserAddresses
+        fields = ('useradd','userdet', 'address', 'city', 'state', 'country', 'pincode')
 
 

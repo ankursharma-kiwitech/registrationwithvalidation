@@ -19,7 +19,7 @@ from django.urls import path, include
 from register import views
 from register.models import UserAddresses
 from register.routers import OptionalSlashRouter
-from register.views import RegistrationAPIView,UserAddressesAPIView,UserCorrespondanceAddressAPIView
+from register.views import RegistrationAPIView,UserAddressesAPIView
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -43,8 +43,7 @@ router = OptionalSlashRouter()
 
 router.register(r'register', RegistrationAPIView, basename='register')
 router.register(r'address',UserAddressesAPIView, basename='address')
-router.register(r'correspond',UserCorrespondanceAddressAPIView, basename='correspond')
-# router.register(r'details',views.ListUserAPIView, basename='details')
+router.register(r'details',views.ListUserAPIView, basename='details')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
